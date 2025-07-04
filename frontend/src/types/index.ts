@@ -76,6 +76,23 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface UploadedFile {
+  originalName: string;
+  fileName: string;
+  mimetype: string;
+  size: number;
+  url: string;
+  publicId: string;
+  thumbnailUrl?: string;
+  thumbnailPublicId?: string;
+  resourceType: 'image' | 'video';
+}
+
+export interface FileUploadResponse {
+  files: UploadedFile[];
+  count: number;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;

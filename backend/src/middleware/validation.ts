@@ -79,3 +79,84 @@ export const authValidation = {
     }),
   },
 };
+
+export const postValidation = {
+  create: {
+    body: Joi.object({
+      content: Joi.string().min(1).max(2000).required().messages({
+        'string.min': '내용을 입력해주세요.',
+        'string.max': '내용은 최대 2000자까지 입력 가능합니다.',
+        'any.required': '내용은 필수 입력 항목입니다.',
+      }),
+      mediaUrls: Joi.array().items(Joi.string().uri()).optional().messages({
+        'array.base': '미디어 URL은 배열이어야 합니다.',
+        'string.uri': '올바른 URL 형식을 입력해주세요.',
+      }),
+      tags: Joi.array().items(Joi.string().max(20)).max(10).optional().messages({
+        'array.base': '태그는 배열이어야 합니다.',
+        'string.max': '태그는 최대 20자까지 입력 가능합니다.',
+        'array.max': '태그는 최대 10개까지 추가할 수 있습니다.',
+      }),
+    }),
+  },
+  update: {
+    body: Joi.object({
+      content: Joi.string().min(1).max(2000).optional().messages({
+        'string.min': '내용을 입력해주세요.',
+        'string.max': '내용은 최대 2000자까지 입력 가능합니다.',
+      }),
+      mediaUrls: Joi.array().items(Joi.string().uri()).optional().messages({
+        'array.base': '미디어 URL은 배열이어야 합니다.',
+        'string.uri': '올바른 URL 형식을 입력해주세요.',
+      }),
+      tags: Joi.array().items(Joi.string().max(20)).max(10).optional().messages({
+        'array.base': '태그는 배열이어야 합니다.',
+        'string.max': '태그는 최대 20자까지 입력 가능합니다.',
+        'array.max': '태그는 최대 10개까지 추가할 수 있습니다.',
+      }),
+    }),
+    params: Joi.object({
+      id: Joi.string().required().messages({
+        'any.required': '게시물 ID가 필요합니다.',
+      }),
+    }),
+  },
+  getById: {
+    params: Joi.object({
+      id: Joi.string().required().messages({
+        'any.required': '게시물 ID가 필요합니다.',
+      }),
+    }),
+  },
+  delete: {
+    params: Joi.object({
+      id: Joi.string().required().messages({
+        'any.required': '게시물 ID가 필요합니다.',
+      }),
+    }),
+  },
+  getList: {
+    query: Joi.object({
+      page: Joi.number().integer().min(1).default(1).messages({
+        'number.base': '페이지는 숫자여야 합니다.',
+        'number.integer': '페이지는 정수여야 합니다.',
+        'number.min': '페이지는 1 이상이어야 합니다.',
+      }),
+      limit: Joi.number().integer().min(1).max(50).default(10).messages({
+        'number.base': '제한은 숫자여야 합니다.',
+        'number.integer': '제한은 정수여야 합니다.',
+        'number.min': '제한은 1 이상이어야 합니다.',
+        'number.max': '제한은 50 이하여야 합니다.',
+      }),
+      tags: Joi.string().optional().messages({
+        'string.base': '태그는 문자열이어야 합니다.',
+      }),
+      author: Joi.string().optional().messages({
+        'string.base': '작성자는 문자열이어야 합니다.',
+      }),
+      search: Joi.string().optional().messages({
+        'string.base': '검색어는 문자열이어야 합니다.',
+      }),
+    }),
+  },
+};

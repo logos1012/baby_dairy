@@ -9,6 +9,8 @@ export interface AuthRequest extends Request {
     email: string;
     name: string;
   };
+  familyId?: string;
+  familyRole?: 'ADMIN' | 'MEMBER';
 }
 
 export const authMiddleware = async (
