@@ -1,7 +1,7 @@
 import express from 'express';
-import { uploadFiles, deleteFile, getUploadProgress } from '../controllers/uploadController';
+import { uploadFiles, deleteFile } from '../controllers/localUploadController';
 import { authMiddleware } from '../middleware/auth';
-import { uploadMultiple, requireFiles } from '../middleware/upload';
+import { uploadMultiple } from '../middleware/upload';
 
 const router = express.Router();
 
@@ -10,14 +10,10 @@ router.post(
   '/files',
   authMiddleware,
   uploadMultiple('files', 5),
-  requireFiles,
-  uploadFiles
+  uploadFiles as any
 );
 
 // 파일 삭제
 router.delete('/files', authMiddleware, deleteFile);
-
-// 업로드 진행률 조회
-router.get('/progress/:uploadId', authMiddleware, getUploadProgress);
 
 export default router;

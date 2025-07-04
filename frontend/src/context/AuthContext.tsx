@@ -1,6 +1,37 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { AuthState, User, Family, AuthResponse } from '../types';
 import { apiService } from '../services/api';
+
+// Local type definitions
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  profileImage?: string;
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
+interface Family {
+  id: string;
+  name: string;
+  inviteCode: string;
+  role: 'ADMIN' | 'MEMBER';
+  createdAt?: Date;
+}
+
+interface AuthState {
+  user: User | null;
+  family: Family | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+}
+
+interface AuthResponse {
+  user: User;
+  family: Family | null;
+  token: string;
+}
 
 interface AuthContextType {
   state: AuthState;

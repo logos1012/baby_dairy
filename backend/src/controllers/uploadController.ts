@@ -4,15 +4,16 @@ import { MulterRequest, UploadedFile } from '../middleware/upload';
 import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary';
 import { optimizeImage, createThumbnail, generateFileName, isImage, isVideo } from '../utils/fileUpload';
 
-export const uploadFiles = async (req: AuthRequest & MulterRequest, res: Response) => {
+export const uploadFiles = async (req: AuthRequest & MulterRequest, res: Response): Promise<void> => {
   try {
     const files = req.files as UploadedFile[];
     
     if (!files || files.length === 0) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: '업로드할 파일이 없습니다.',
       });
+      return;
     }
 
     const uploadPromises = files.map(async (file) => {
@@ -87,15 +88,16 @@ export const uploadFiles = async (req: AuthRequest & MulterRequest, res: Respons
   }
 };
 
-export const deleteFile = async (req: AuthRequest, res: Response) => {
+export const deleteFile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { publicId, resourceType = 'image' } = req.body;
 
     if (!publicId) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: '삭제할 파일의 public ID가 필요합니다.',
       });
+      return;
     }
 
     const deleteResult = await deleteFromCloudinary(publicId, resourceType as 'image' | 'video');
@@ -120,7 +122,7 @@ export const deleteFile = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getUploadProgress = async (req: AuthRequest, res: Response) => {
+export const getUploadProgress = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     // 실제 프로덕션에서는 Redis나 다른 캐시 시스템을 사용하여 진행률을 추적할 수 있습니다.
     res.json({

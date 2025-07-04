@@ -6,7 +6,7 @@ export const validateRequest = (schema: {
   query?: Joi.ObjectSchema;
   params?: Joi.ObjectSchema;
 }) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const validationErrors: string[] = [];
 
     if (schema.body) {
@@ -31,11 +31,12 @@ export const validateRequest = (schema: {
     }
 
     if (validationErrors.length > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: '입력 데이터가 올바르지 않습니다.',
         errors: validationErrors,
       });
+      return;
     }
 
     next();

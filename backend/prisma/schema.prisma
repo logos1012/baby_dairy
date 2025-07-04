@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -60,9 +60,9 @@ model FamilyMember {
 model Post {
   id        String    @id @default(cuid())
   content   String
-  mediaUrls String[]
+  mediaUrls String // JSON array stored as string
   mediaType MediaType?
-  tags      String[]
+  tags      String // JSON array stored as string
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   

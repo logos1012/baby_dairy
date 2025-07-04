@@ -1,38 +1,40 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import prisma from '../config/database';
+import { MediaType } from '@prisma/client';
 
-export const createPost = async (req: AuthRequest, res: Response) => {
+export const createPost = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { content, mediaUrls = [], tags = [] } = req.body;
     const userId = req.user?.id;
     const familyId = req.familyId;
 
     if (!userId || !familyId) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: '인증이 필요합니다.',
       });
+      return;
     }
 
     // 미디어 타입 결정
-    let mediaType = null;
+    let mediaType: MediaType | null = null;
     if (mediaUrls.length > 0) {
       // 첫 번째 미디어 URL을 기준으로 타입 결정 (실제로는 더 정교한 로직 필요)
       const firstUrl = mediaUrls[0];
       if (firstUrl.includes('image') || firstUrl.includes('jpg') || firstUrl.includes('png')) {
-        mediaType = 'IMAGE';
+        mediaType = MediaType.IMAGE;
       } else if (firstUrl.includes('video') || firstUrl.includes('mp4')) {
-        mediaType = 'VIDEO';
+        mediaType = MediaType.VIDEO;
       }
     }
 
     const post = await prisma.post.create({
       data: {
         content,
-        mediaUrls,
+        mediaUrls: JSON.stringify(mediaUrls),
         mediaType,
-        tags,
+        tags: JSON.stringify(tags),
         authorId: userId,
         familyId,
       },
@@ -98,7 +100,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getPosts = async (req: AuthRequest, res: Response) => {
+export const getPosts = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -108,10 +110,11 @@ export const getPosts = async (req: AuthRequest, res: Response) => {
     const familyId = req.familyId;
 
     if (!familyId) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: '가족 정보가 필요합니다.',
       });
+      return;
     }
 
     const skip = (page - 1) * limit;
@@ -121,11 +124,7 @@ export const getPosts = async (req: AuthRequest, res: Response) => {
       familyId,
     };
 
-    if (tags) {
-      where.tags = {
-        hasSome: tags.split(',').map(tag => tag.trim()),
-      };
-    }
+    // Note: SQLite doesn't support array operations, so tag filtering would need custom implementation
 
     if (author) {
       where.author = {
@@ -144,11 +143,7 @@ export const getPosts = async (req: AuthRequest, res: Response) => {
             mode: 'insensitive',
           },
         },
-        {
-          tags: {
-            hasSome: [search],
-          },
-        },
+        // Note: SQLite doesn't support array search, would need custom implementation
       ];
     }
 
@@ -211,7 +206,7 @@ export const getPosts = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getPostById = async (req: AuthRequest, res: Response) => {
+export const getPostById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -266,10 +261,11 @@ export const getPostById = async (req: AuthRequest, res: Response) => {
     });
 
     if (!post) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: '게시물을 찾을 수 없습니다.',
       });
+      return;
     }
 
     res.json({
@@ -285,7 +281,7 @@ export const getPostById = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const updatePost = async (req: AuthRequest, res: Response) => {
+export const updatePost = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { content, mediaUrls, tags } = req.body;
@@ -294,21 +290,21 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
 
     if (content !== undefined) updateData.content = content;
     if (mediaUrls !== undefined) {
-      updateData.mediaUrls = mediaUrls;
+      updateData.mediaUrls = JSON.stringify(mediaUrls);
       
       // 미디어 타입 업데이트
       if (mediaUrls.length > 0) {
         const firstUrl = mediaUrls[0];
         if (firstUrl.includes('image') || firstUrl.includes('jpg') || firstUrl.includes('png')) {
-          updateData.mediaType = 'IMAGE';
+          updateData.mediaType = MediaType.IMAGE;
         } else if (firstUrl.includes('video') || firstUrl.includes('mp4')) {
-          updateData.mediaType = 'VIDEO';
+          updateData.mediaType = MediaType.VIDEO;
         }
       } else {
         updateData.mediaType = null;
       }
     }
-    if (tags !== undefined) updateData.tags = tags;
+    if (tags !== undefined) updateData.tags = JSON.stringify(tags);
 
     const post = await prisma.post.update({
       where: { id },
@@ -375,7 +371,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const deletePost = async (req: AuthRequest, res: Response) => {
+export const deletePost = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
@@ -396,16 +392,17 @@ export const deletePost = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const likePost = async (req: AuthRequest, res: Response) => {
+export const likePost = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: '인증이 필요합니다.',
       });
+      return;
     }
 
     // 이미 좋아요를 눌렀는지 확인

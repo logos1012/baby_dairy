@@ -67,12 +67,13 @@ export const uploadMultiple = (fieldName: string, maxCount: number = 5) => {
 };
 
 // 파일 존재 확인 미들웨어
-export const requireFiles = (req: MulterRequest, res: Response, next: NextFunction) => {
+export const requireFiles = (req: MulterRequest, res: Response, next: NextFunction): void => {
   if (!req.files || req.files.length === 0) {
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       message: '업로드할 파일이 없습니다.',
     });
+    return;
   }
   
   next();

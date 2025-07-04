@@ -58,7 +58,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       'video/mkv',
     ];
 
-    if (!allowedTypes.includes(file.mimetype)) {
+    if (!allowedTypes.includes(file.type)) {
       return '지원하지 않는 파일 형식입니다.';
     }
 

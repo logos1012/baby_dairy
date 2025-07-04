@@ -5,7 +5,14 @@
       "Bash(npm install)",
       "Bash(npm install:*)",
       "Bash(npx tailwindcss init:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(ls:*)",
+      "Bash(npm start)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(pkill:*)"
     ],
     "deny": []
   }

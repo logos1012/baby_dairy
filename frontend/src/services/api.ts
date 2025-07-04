@@ -1,5 +1,14 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { ApiResponse } from '../types';
+import axios from 'axios';
+import type { AxiosInstance, AxiosRequestConfig } from 'axios';
+
+// API Response interface
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+  errors?: string[];
+}
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -66,9 +75,9 @@ class ApiService {
     }
   }
 
-  async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
-      const response = await this.instance.put(url, data, config);
+      const response = await this.instance.delete(url, config);
       return response.data;
     } catch (error: any) {
       return {
@@ -78,9 +87,9 @@ class ApiService {
     }
   }
 
-  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
-      const response = await this.instance.delete(url, config);
+      const response = await this.instance.put(url, data, config);
       return response.data;
     } catch (error: any) {
       return {

@@ -8,7 +8,7 @@ const generateInviteCode = (): string => {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 };
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, name, familyName, inviteCode } = req.body;
 
@@ -17,10 +17,11 @@ export const register = async (req: Request, res: Response) => {
     });
 
     if (existingUser) {
-      return res.status(409).json({
+      res.status(409).json({
         success: false,
         message: '이미 존재하는 이메일입니다.',
       });
+      return;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -101,10 +102,11 @@ export const register = async (req: Request, res: Response) => {
     console.error('Register error:', error);
     
     if (error.message === '유효하지 않은 초대 코드입니다.') {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: error.message,
       });
+      return;
     }
 
     res.status(500).json({
@@ -114,7 +116,7 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
@@ -130,19 +132,21 @@ export const login = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: '이메일 또는 비밀번호가 올바르지 않습니다.',
       });
+      return;
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: '이메일 또는 비밀번호가 올바르지 않습니다.',
       });
+      return;
     }
 
     const token = generateToken(user.id);
@@ -180,15 +184,16 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const getMe = async (req: AuthRequest, res: Response) => {
+export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: '인증이 필요합니다.',
       });
+      return;
     }
 
     const user = await prisma.user.findUnique({
@@ -203,10 +208,11 @@ export const getMe = async (req: AuthRequest, res: Response) => {
     });
 
     if (!user) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: '사용자를 찾을 수 없습니다.',
       });
+      return;
     }
 
     const familyMember = user.familyMembers[0];
@@ -239,7 +245,7 @@ export const getMe = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const logout = async (req: AuthRequest, res: Response) => {
+export const logout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     res.json({
       success: true,
